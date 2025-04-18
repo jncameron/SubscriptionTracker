@@ -1,5 +1,5 @@
-﻿using CategoryTracker.Application.Interfaces;
-using SubscriptionTracker.Application.DTOs;
+﻿using SubscriptionTracker.Application.DTOs;
+using SubscriptionTracker.Application.Interfaces.Services;
 using SubscriptionTracker.Domain.Entities;
 
 namespace SubscriptionTracker.Application.Services
@@ -22,7 +22,7 @@ namespace SubscriptionTracker.Application.Services
             return categoryDTOs;
         }
 
-        public async Task<CategoryDTO> GetCategoryById(int id)
+        public async Task<CategoryDTO?> GetCategoryById(int id)
         {
             var category = await categoryRepository.GetCategoryByIdAsync(id);
             if (category != null)
@@ -40,7 +40,7 @@ namespace SubscriptionTracker.Application.Services
             }
         }
 
-        public async Task<CategoryDTO> GetCategoryByName(string name)
+        public async Task<CategoryDTO?> GetCategoryByName(string name)
         {
             var category = await categoryRepository.GetCategoryByNameAsync(name);
             if (category != null)

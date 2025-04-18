@@ -1,6 +1,6 @@
-﻿using CategoryTracker.Application.Interfaces;
-using SubscriptionTracker.Application.DTOs;
-using SubscriptionTracker.Application.Interfaces;
+﻿using SubscriptionTracker.Application.DTOs;
+using SubscriptionTracker.Application.Interfaces.Repositories;
+using SubscriptionTracker.Application.Interfaces.Services;
 using SubscriptionTracker.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace SubscriptionTracker.Application.Services
             }
             return subscriptionDTOs;
         }
-        public async Task<Subscription> CreateSubscription(SubscriptionDTO subscriptionDTO)
+        public async Task<Subscription?> CreateSubscription(SubscriptionDTO subscriptionDTO)
         {
             // Check if the category exists in the database  
             var existingCategory = await categoryService.GetCategoryByName(subscriptionDTO.CategoryName);
@@ -71,7 +71,7 @@ namespace SubscriptionTracker.Application.Services
 
             return newSubscription;
         }
-        public async Task<SubscriptionDTO> GetSubscriptionByIdAsync(int id)
+        public async Task<SubscriptionDTO?> GetSubscriptionByIdAsync(int id)
         {
             var subscription = await subscriptionRepository.GetSubscriptionByIdAsync(id);
             if (subscription != null)
@@ -93,7 +93,7 @@ namespace SubscriptionTracker.Application.Services
             }
         }
 
-        public async Task<SubscriptionDTO> GetSubscriptionByNameAsync(string name)
+        public async Task<SubscriptionDTO?> GetSubscriptionByNameAsync(string name)
         {
             var subscription = await subscriptionRepository.GetSubscriptionByNameAsync(name);
             if (subscription != null)

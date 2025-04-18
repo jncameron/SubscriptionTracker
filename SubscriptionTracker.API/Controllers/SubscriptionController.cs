@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionTracker.Application.DTOs;
-using SubscriptionTracker.Application.Interfaces;
+using SubscriptionTracker.Application.Interfaces.Services;
 
 namespace SubscriptionTracker.API.Controllers
 {
@@ -17,7 +17,7 @@ namespace SubscriptionTracker.API.Controllers
             return Ok(subscriptions);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetSubscription(int id)
         {
             var subscription = await subscriptionService.GetSubscriptionByIdAsync(id);
@@ -26,7 +26,7 @@ namespace SubscriptionTracker.API.Controllers
             return Ok(subscription);
         }
 
-        [HttpGet("{name}")]
+        [HttpGet("by-name/{name}")]
         public async Task<IActionResult> GetSubscription(string subName)
         {
             var subscription = await subscriptionService.GetSubscriptionByNameAsync(subName);
@@ -46,6 +46,11 @@ namespace SubscriptionTracker.API.Controllers
             }
 
             var created = await subscriptionService.CreateSubscription(subscriptionDTO);
+
+            if (created == null)
+            {
+                return StatusCode(500, new { Message = "Failed to create subscription." });
+            }
 
             return CreatedAtAction(nameof(GetSubscription), new { id = created.Id }, new SubscriptionDTO
             {

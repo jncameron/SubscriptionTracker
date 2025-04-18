@@ -2,10 +2,10 @@ using SubscriptionTracker.Infrastructure.Repositories;
 using SubscriptionTracker.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using SubscriptionTracker.Infrastructure.Data;
-using SubscriptionTracker.Application.Interfaces;
-using CategoryTracker.Application.Interfaces;
 using SubscriptionTracker.Application.Services;
 using Scalar.AspNetCore;
+using SubscriptionTracker.Application.Interfaces.Repositories;
+using SubscriptionTracker.Application.Interfaces.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);

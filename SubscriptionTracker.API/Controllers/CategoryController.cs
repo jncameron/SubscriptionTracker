@@ -1,6 +1,6 @@
-﻿using CategoryTracker.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SubscriptionTracker.Application.DTOs;
+using SubscriptionTracker.Application.Interfaces.Services;
 using SubscriptionTracker.Domain.Entities;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

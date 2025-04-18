@@ -11,12 +11,12 @@ namespace SubscriptionTracker.Infrastructure.Repositories
             return await appContext.Categories.ToListAsync();
         }
 
-        public async Task<Category> GetCategoryByNameAsync(string name)
+        public async Task<Category?> GetCategoryByNameAsync(string name)
         {
             return await appContext.Categories.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public async Task<Category> GetCategoryByIdAsync(int id)
+        public async Task<Category?> GetCategoryByIdAsync(int id)
         {
             return await appContext.Categories.FirstOrDefaultAsync(x => x.Id == id);
         }
