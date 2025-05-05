@@ -10,10 +10,10 @@ namespace SubscriptionTracker.Application.Interfaces.Repositories
 {
     public interface ISubscriptionRepository
     {
-        Task<List<Subscription>> GetAllSubscriptions();
+        Task<List<Subscription>> GetAllSubscriptions(string userId);
         Task<Subscription> CreateSubscription(Subscription subscription);
         Task<Subscription?> GetSubscriptionByIdAsync(int id);
-        Task<Subscription?> GetSubscriptionByNameAsync(string name);
+        Task<Subscription?> GetSubscriptionByNameAsync(string name, string userId);
         Task<bool> UpdateSubscriptionAsync(int id, SubscriptionDTO dto);
         Task DeleteSubscriptionAsync(Subscription subscription);
 

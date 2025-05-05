@@ -13,10 +13,10 @@ namespace SubscriptionTracker.Application.Services
 {
     public class SubscriptionService(ISubscriptionRepository subscriptionRepository, ICategoryService categoryService, ILogger<SubscriptionService> logger) : ISubscriptionService
     {
-        public async Task<List<SubscriptionDTO>> GetAllSubscriptions()
+        public async Task<List<SubscriptionDTO>> GetAllSubscriptions(string userId)
         {
             logger.LogInformation("Retrieving all subscriptions from repository.");
-            var subscriptions = await subscriptionRepository.GetAllSubscriptions();
+            var subscriptions = await subscriptionRepository.GetAllSubscriptions(userId);
             logger.LogInformation("Retrieved {Count} subscriptions.", subscriptions.Count());
             var subscriptionDTOs = new List<SubscriptionDTO>();
             foreach (var subscription in subscriptions)
@@ -34,7 +34,7 @@ namespace SubscriptionTracker.Application.Services
             }
             return subscriptionDTOs;
         }
-        public async Task<Subscription?> CreateSubscription(SubscriptionDTO subscriptionDTO)
+        public async Task<SubscriptionDTO?> CreateSubscription(SubscriptionDTO subscriptionDTO, string userId)
         {
             // Check if the category exists in the database  
             var existingCategory = await categoryService.GetCategoryByName(subscriptionDTO.CategoryName);
@@ -67,12 +67,16 @@ namespace SubscriptionTracker.Application.Services
                 MonthlyCost = subscriptionDTO.MonthlyCost,
                 StartDate = subscriptionDTO.StartDate,
                 IsActive = subscriptionDTO.IsActive,
-                CategoryId = category.Id
+                CategoryId = category.Id,
+                UserId = userId
             };
 
             var newSubscription = await subscriptionRepository.CreateSubscription(subscription);
 
-            return newSubscription;
+            subscriptionDTO.Id = subscription.Id;
+            subscriptionDTO.UserId = userId;
+
+            return subscriptionDTO;
         }
         public async Task<SubscriptionDTO?> GetSubscriptionByIdAsync(int id)
         {
@@ -96,9 +100,9 @@ namespace SubscriptionTracker.Application.Services
             }
         }
 
-        public async Task<SubscriptionDTO?> GetSubscriptionByNameAsync(string name)
+        public async Task<SubscriptionDTO?> GetSubscriptionByNameAsync(string name, string userId)
         {
-            var subscription = await subscriptionRepository.GetSubscriptionByNameAsync(name);
+            var subscription = await subscriptionRepository.GetSubscriptionByNameAsync(name, userId);
             if (subscription != null)
             {
                 var subscriptionDTO = new SubscriptionDTO
@@ -133,5 +137,44 @@ namespace SubscriptionTracker.Application.Services
             await subscriptionRepository.DeleteSubscriptionAsync(subscription);
             return true;
         }
+
+        public async Task<IEnumerable<SubscriptionDTO>> GetByUserIdAsync(string userId)
+        {
+            var subscriptions = await subscriptionRepository.GetAllSubscriptions(userId);
+
+            return subscriptions.Select(s => new SubscriptionDTO
+            {
+                Id = s.Id,
+                Name = s.Name,
+                MonthlyCost = s.MonthlyCost,
+                IsActive = s.IsActive,
+                CategoryName = s.Category.Name,
+                UserId = s.UserId
+            });
+        }
+
+        public async Task<DashboardDTO> GetDashboardAsync(string userId)
+        {
+            var subscriptions = await subscriptionRepository.GetAllSubscriptions(userId);
+
+            var dashboard = new DashboardDTO
+            {
+                TotalMonthlyCost = subscriptions.Where(s => s.IsActive).Sum(s => s.MonthlyCost),
+                ActiveCount = subscriptions.Count(s => s.IsActive),
+                InactiveCount = subscriptions.Count(s => !s.IsActive),
+                Categories = subscriptions
+                    .GroupBy(s => s.Category.Name)
+                    .Select(g => new CategoryBreakdownDTO
+                    {
+                        CategoryName = g.Key,
+                        Count = g.Count(),
+                        TotalCost = g.Sum(s => s.MonthlyCost)
+                    })
+                    .ToList()
+            };
+
+            return dashboard;
+        }
+
     }
 }

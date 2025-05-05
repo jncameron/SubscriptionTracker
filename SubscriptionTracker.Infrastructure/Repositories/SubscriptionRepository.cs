@@ -12,20 +12,12 @@ namespace SubscriptionTracker.Infrastructure.Repositories
     public class SubscriptionRepository(SubscriptionAppContext appContext, IConfiguration configuration, ILogger<SubscriptionRepository> logger) : ISubscriptionRepository
     {
         private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
-        public async Task<List<Subscription>> GetAllSubscriptions()
+        public async Task<List<Subscription>> GetAllSubscriptions(string userId)
         {
-            //return await appContext.Subscriptions.Include(s => s.Category).ToListAsync();
-
-
-            //Use raw SQL query (EF Core) to fetch all subscriptions
-            var sql = @"
-            SELECT s.*
-            FROM Subscriptions s";
-
-                return await appContext.Subscriptions
-                    .FromSqlRaw(sql)
-                    .Include(s => s.Category)
-                    .ToListAsync();
+            return await appContext.Subscriptions
+                .Include(s => s.Category)
+                .Where(s => s.UserId == userId)
+                .ToListAsync();
         }
         public async Task<Subscription> CreateSubscription(Subscription subscription)
         {
@@ -87,10 +79,10 @@ namespace SubscriptionTracker.Infrastructure.Repositories
         }
         
 
-        public async Task<Subscription?> GetSubscriptionByNameAsync(string name)
+        public async Task<Subscription?> GetSubscriptionByNameAsync(string name,string userId)
         {
             return await appContext.Subscriptions
-               .Include(s => s.Category)
+               .Include(s => s.Category).Where(x => x.UserId == userId)
                .FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         }
 
@@ -104,6 +96,7 @@ namespace SubscriptionTracker.Infrastructure.Repositories
             subscription.Name = dto.Name;
             subscription.MonthlyCost = dto.MonthlyCost;
             subscription.IsActive = dto.IsActive;
+            subscription.StartDate = dto.StartDate;
 
             // Handle Category update if necessary
             if (!string.IsNullOrEmpty(dto.CategoryName))

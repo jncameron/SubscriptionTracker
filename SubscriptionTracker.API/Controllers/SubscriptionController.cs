@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SubscriptionTracker.Application.DTOs;
 using SubscriptionTracker.Application.Interfaces.Services;
 using SubscriptionTracker.Application.Services;
+using System.Security.Claims;
 
 namespace SubscriptionTracker.API.Controllers
 {
@@ -13,14 +14,17 @@ namespace SubscriptionTracker.API.Controllers
     [ApiController]
     public class SubscriptionController(ISubscriptionService subscriptionService, ILogger<SubscriptionController> logger) : ControllerBase
     {
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllSubscriptions()
         {
-            var subscriptions = await subscriptionService.GetAllSubscriptions();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var subscriptions = await subscriptionService.GetAllSubscriptions(userId);
             logger.LogInformation("Fetched {Count} subscriptions", subscriptions.Count);
             return Ok(subscriptions);
         }
 
+        [Authorize]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetSubscription(int id)
         {
@@ -30,26 +34,31 @@ namespace SubscriptionTracker.API.Controllers
             return Ok(subscription);
         }
 
+        [Authorize]
         [HttpGet("by-name/{name}")]
         public async Task<IActionResult> GetSubscription(string subName)
         {
-            var subscription = await subscriptionService.GetSubscriptionByNameAsync(subName);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var subscription = await subscriptionService.GetSubscriptionByNameAsync(subName, userId);
             if (subscription == null)
                 return NotFound();
             return Ok(subscription);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateSubscription([FromBody] SubscriptionDTO subscriptionDTO)
         {
-            var existingSubscription = (await subscriptionService.GetSubscriptionByNameAsync(subscriptionDTO.Name));
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            var existingSubscription = (await subscriptionService.GetSubscriptionByNameAsync(subscriptionDTO.Name, userId));
 
             if (existingSubscription != null)
             {
                 return BadRequest(new { Message = "A subscription with the same name already exists." });
             }
 
-            var created = await subscriptionService.CreateSubscription(subscriptionDTO);
+            var created = await subscriptionService.CreateSubscription(subscriptionDTO, userId);
 
             if (created == null)
             {
@@ -63,7 +72,7 @@ namespace SubscriptionTracker.API.Controllers
                 MonthlyCost = created.MonthlyCost,
                 StartDate = created.StartDate,
                 IsActive = created.IsActive,
-                CategoryName = created.Category?.Name ?? subscriptionDTO.CategoryName
+                CategoryName = created.CategoryName ?? subscriptionDTO.CategoryName
             });
         }
 

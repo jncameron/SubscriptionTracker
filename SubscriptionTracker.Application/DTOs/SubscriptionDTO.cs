@@ -14,5 +14,6 @@ namespace SubscriptionTracker.Application.DTOs
         public DateTime StartDate { get; set; }
         public bool IsActive { get; set; }
         public string CategoryName { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
     }
 }
