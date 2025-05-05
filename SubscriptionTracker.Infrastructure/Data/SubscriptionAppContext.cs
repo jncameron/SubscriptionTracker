@@ -16,7 +16,8 @@ namespace SubscriptionTracker.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Category>().ToTable("Categories");
-            modelBuilder.Entity<Subscription>().ToTable("Subscriptions");
+            modelBuilder.Entity<Subscription>().ToTable("Subscriptions").Property(s => s.MonthlyCost)
+        .HasPrecision(10, 2);
             base.OnModelCreating(modelBuilder);
         }
     }

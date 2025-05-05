@@ -8,12 +8,13 @@ namespace SubscriptionTracker.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubscriptionController(ISubscriptionService subscriptionService) : ControllerBase
+    public class SubscriptionController(ISubscriptionService subscriptionService, ILogger<SubscriptionController> logger) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> GetAllSubscriptions()
         {
             var subscriptions = await subscriptionService.GetAllSubscriptions();
+            logger.LogInformation("Fetched {Count} subscriptions", subscriptions.Count);
             return Ok(subscriptions);
         }
 

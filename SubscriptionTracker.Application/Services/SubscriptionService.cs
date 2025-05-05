@@ -1,4 +1,5 @@
-﻿using SubscriptionTracker.Application.DTOs;
+﻿using Microsoft.Extensions.Logging;
+using SubscriptionTracker.Application.DTOs;
 using SubscriptionTracker.Application.Interfaces.Repositories;
 using SubscriptionTracker.Application.Interfaces.Services;
 using SubscriptionTracker.Domain.Entities;
@@ -10,11 +11,13 @@ using System.Threading.Tasks;
 
 namespace SubscriptionTracker.Application.Services
 {
-    public class SubscriptionService(ISubscriptionRepository subscriptionRepository, ICategoryService categoryService) : ISubscriptionService
+    public class SubscriptionService(ISubscriptionRepository subscriptionRepository, ICategoryService categoryService, ILogger<SubscriptionService> logger) : ISubscriptionService
     {
         public async Task<List<SubscriptionDTO>> GetAllSubscriptions()
         {
+            logger.LogInformation("Retrieving all subscriptions from repository.");
             var subscriptions = await subscriptionRepository.GetAllSubscriptions();
+            logger.LogInformation("Retrieved {Count} subscriptions.", subscriptions.Count());
             var subscriptionDTOs = new List<SubscriptionDTO>();
             foreach (var subscription in subscriptions)
             {
