@@ -117,5 +117,21 @@ namespace SubscriptionTracker.Application.Services
                 return null;
             }
         }
+
+        public async Task<bool> UpdateSubscriptionAsync(int id, SubscriptionDTO dto)
+        {
+            return await subscriptionRepository.UpdateSubscriptionAsync(id, dto);
+        }
+
+
+        public async Task<bool> DeleteSubscriptionAsync(int id)
+        {
+            var subscription = await subscriptionRepository.GetSubscriptionByIdAsync(id);
+            if (subscription == null)
+                return false;
+
+            await subscriptionRepository.DeleteSubscriptionAsync(subscription);
+            return true;
+        }
     }
 }

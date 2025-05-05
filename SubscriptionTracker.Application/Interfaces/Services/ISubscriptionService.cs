@@ -9,5 +9,8 @@ namespace SubscriptionTracker.Application.Interfaces.Services
         Task<List<SubscriptionDTO>> GetAllSubscriptions();
         Task<SubscriptionDTO?> GetSubscriptionByIdAsync(int id);
         Task<SubscriptionDTO?> GetSubscriptionByNameAsync(string name);
+        Task<bool> UpdateSubscriptionAsync(int id, SubscriptionDTO dto);
+        Task<bool> DeleteSubscriptionAsync(int id);
+
     }
 }

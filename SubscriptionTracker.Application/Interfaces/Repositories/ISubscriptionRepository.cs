@@ -1,4 +1,5 @@
-﻿using SubscriptionTracker.Domain.Entities;
+﻿using SubscriptionTracker.Application.DTOs;
+using SubscriptionTracker.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,8 @@ namespace SubscriptionTracker.Application.Interfaces.Repositories
         Task<Subscription> CreateSubscription(Subscription subscription);
         Task<Subscription?> GetSubscriptionByIdAsync(int id);
         Task<Subscription?> GetSubscriptionByNameAsync(string name);
+        Task<bool> UpdateSubscriptionAsync(int id, SubscriptionDTO dto);
+        Task DeleteSubscriptionAsync(Subscription subscription);
+
     }
 }

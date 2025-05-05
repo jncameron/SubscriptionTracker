@@ -93,5 +93,44 @@ namespace SubscriptionTracker.Infrastructure.Repositories
                .Include(s => s.Category)
                .FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         }
+
+        public async Task<bool> UpdateSubscriptionAsync(int id, SubscriptionDTO dto)
+        {
+            var subscription = await appContext.Subscriptions.FindAsync(id);
+            if (subscription == null)
+                return false;
+
+            // Update subscription properties
+            subscription.Name = dto.Name;
+            subscription.MonthlyCost = dto.MonthlyCost;
+            subscription.IsActive = dto.IsActive;
+
+            // Handle Category update if necessary
+            if (!string.IsNullOrEmpty(dto.CategoryName))
+            {
+                var category = await appContext.Categories
+                    .FirstOrDefaultAsync(c => c.Name == dto.CategoryName);
+
+                if (category == null)
+                {
+                    category = new Category { Name = dto.CategoryName };
+                    appContext.Categories.Add(category);
+                    await appContext.SaveChangesAsync();
+                }
+
+                subscription.CategoryId = category.Id;
+            }
+
+            appContext.Subscriptions.Update(subscription);
+            await appContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task DeleteSubscriptionAsync(Subscription subscription)
+        {
+            appContext.Subscriptions.Remove(subscription);
+            await appContext.SaveChangesAsync();
+        }
     }
 }

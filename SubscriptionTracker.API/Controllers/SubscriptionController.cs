@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SubscriptionTracker.Application.DTOs;
 using SubscriptionTracker.Application.Interfaces.Services;
+using SubscriptionTracker.Application.Services;
 
 namespace SubscriptionTracker.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SubscriptionController(ISubscriptionService subscriptionService, ILogger<SubscriptionController> logger) : ControllerBase
@@ -63,5 +66,30 @@ namespace SubscriptionTracker.API.Controllers
                 CategoryName = created.Category?.Name ?? subscriptionDTO.CategoryName
             });
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSubscription(int id, [FromBody] SubscriptionDTO dto)
+        {
+            var success = await subscriptionService.UpdateSubscriptionAsync(id, dto);
+            if (!success)
+                return NotFound();
+
+            logger.LogInformation("Updated subscription with ID {Id}", id);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSubscription(int id)
+        {
+            var success = await subscriptionService.DeleteSubscriptionAsync(id);
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            logger.LogInformation("Deleted subscription with ID {Id}", id);
+            return NoContent();
+        }
+
     }
 }
